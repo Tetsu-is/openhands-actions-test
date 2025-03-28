@@ -240,9 +240,9 @@ jobs:
               await exec.exec("python -m pip install --upgrade pip");
               await exec.exec("pip install git+https://github.com/Tetsu-is/openhands.git@add-base-container-image-to-resolver-2"); 
             } else {
-              # console.log("Installing from requirements.txt...");
-              # await exec.exec("python -m pip install --upgrade pip");
-              # await exec.exec("pip install -r /tmp/requirements.txt");
+              // console.log("Installing from requirements.txt...");
+              // await exec.exec("python -m pip install --upgrade pip");
+              // await exec.exec("pip install -r /tmp/requirements.txt");
               console.log("Installing experimental OpenHands...");
               await exec.exec("python -m pip install --upgrade pip");
               await exec.exec("pip install git+https://github.com/Tetsu-is/openhands.git@add-base-container-image-to-resolver-2"); 
