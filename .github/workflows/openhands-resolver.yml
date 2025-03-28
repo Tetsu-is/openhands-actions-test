@@ -86,7 +86,13 @@ jobs:
           file: ./Dockerfile.sandbox
           push: false
           tags: sandbox:latest
-          outputs: type=docker,dest=/tmp/sandbox.tar
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Check Docker image
         run: |
@@ -258,10 +264,11 @@ jobs:
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
           LLM_API_VERSION: ''
           PYTHONPATH: ""
-          BASE_CONTAINER_IMAGE: ruby:3.2.2
+          BASE_CONTAINER_IMAGE: sandbox:latest
         run: |
           echo "Load Docker image before running resolver"
-          docker load --input /tmp/sandbox.tar
+          docker load --input /tmp/.buildx-cache/sandbox.tar
+          
 
           cd /tmp && python -m openhands.resolver.resolve_issue \
             --username ${{ env.GITHUB_USERNAME }} \
