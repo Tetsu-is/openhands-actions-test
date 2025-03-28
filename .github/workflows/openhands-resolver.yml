@@ -258,7 +258,7 @@ jobs:
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
           LLM_API_VERSION: ''
           PYTHONPATH: ""
-          BASE_CONTAINER_IMAGE: sandbox:latest
+          BASE_CONTAINER_IMAGE: ruby:3.2.2
         run: |
           echo "Load Docker image before running resolver"
           docker load --input /tmp/sandbox.tar
