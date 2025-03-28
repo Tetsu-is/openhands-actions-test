@@ -261,12 +261,12 @@ jobs:
           docker load --input /tmp/sandbox.tar
 
           cd /tmp && python -m openhands.resolver.resolve_issue \
+            --username ${{ env.GITHUB_USERNAME }} \
             --selected-repo ${{ github.repository }} \
             --issue-number ${{ env.ISSUE_NUMBER }} \
-            --issue-type ${{ env.ISSUE_TYPE }} \
-            --max-iterations ${{ env.MAX_ITERATIONS }} \
-            --comment-id ${{ env.COMMENT_ID }} \
-            --is-experimental ${{ steps.install_openhands.outputs.isExperimental }} \
+            --token ${{ env.GITHUB_TOKEN }} \
+            --llm-model ${{ env.LLM_MODEL }} \
+            --llm-api-key ${{ env.LLM_API_KEY }} \
             --base-container-image ${{ env.BASE_CONTAINER_IMAGE }}
 
       - name: Check resolution result
