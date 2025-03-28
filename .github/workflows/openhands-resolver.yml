@@ -97,7 +97,7 @@ jobs:
       - name: Check Docker image
         run: |
           echo "Loading Docker image from /tmp/sandbox.tar..."
-          if docker load --input /tmp/sandbox.tar; then
+          if docker load --input /tmp/.buildx-cache/sandbox.tar; then
             echo "✅ Docker image loaded successfully"
             docker images | grep sandbox
           else
