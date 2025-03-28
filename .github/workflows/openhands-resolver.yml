@@ -254,10 +254,6 @@ jobs:
       #     username: ${{ vars.DOCKERHUB_USERNAME }}
       #     password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Test pulling image
-        run: |
-          docker pull golang:1.23-bullseye
-
       - name: Attempt to resolve issue
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
@@ -268,7 +264,7 @@ jobs:
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
           LLM_API_VERSION: ''
           PYTHONPATH: ""
-          BASE_CONTAINER_IMAGE: golang:1.23-bullseye
+          BASE_CONTAINER_IMAGE: ruby:3.2-bullseye
         run: |
           echo "Logging in to Docker Hub..."
           docker login -u ${{ vars.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
