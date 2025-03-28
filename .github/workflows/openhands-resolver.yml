@@ -266,9 +266,6 @@ jobs:
           PYTHONPATH: ""
           BASE_CONTAINER_IMAGE: sandbox:latest
         run: |
-          echo "Load Docker image before running resolver"
-          docker load --input /tmp/.buildx-cache/sandbox.tar
-          
 
           cd /tmp && python -m openhands.resolver.resolve_issue \
             --username ${{ env.GITHUB_USERNAME }} \
