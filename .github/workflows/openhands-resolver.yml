@@ -99,12 +99,6 @@ jobs:
       #       exit 1
       #     fi
 
-      - name: Login Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -254,6 +248,12 @@ jobs:
               await exec.exec("pip install git+https://github.com/Tetsu-is/openhands.git@arg-base-container-image__add-docker-log"); 
             }
 
+      - name: Login Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Attempt to resolve issue
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
@@ -264,7 +264,7 @@ jobs:
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
           LLM_API_VERSION: ''
           PYTHONPATH: ""
-          BASE_CONTAINER_IMAGE: ruby:2.6-alpine
+          BASE_CONTAINER_IMAGE: ruby:3.2-bullseye
         run: |
 
           cd /tmp && python -m openhands.resolver.resolve_issue \
