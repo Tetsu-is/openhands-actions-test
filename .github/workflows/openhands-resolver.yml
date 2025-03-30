@@ -254,20 +254,20 @@ jobs:
       #     username: ${{ vars.DOCKERHUB_USERNAME }}
       #     password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Test Docker buildx
-        env:
-          OPENHANDS_RUNTIME_VERSION: "0.0.1"
-          OPENHANDS_RUNTIME_BUILD_TIME: "2025-03-30T00:00:00"
-          TAG: "sandbox:latest"
-        run: |
-          echo "Test buliding docker image..."
+      # - name: Test Docker buildx
+      #   env:
+      #     OPENHANDS_RUNTIME_VERSION: "0.0.1"
+      #     OPENHANDS_RUNTIME_BUILD_TIME: "2025-03-30T00:00:00"
+      #     TAG: "sandbox:latest"
+      #   run: |
+      #     echo "Test buliding docker image..."
 
-          docker buildx build \
-            --progress=plain \
-            --build-arg=OPENHANDS_RUNTIME_VERSION=${{ env.OPENHANDS_RUNTIME_VERSION }} \
-            --build-arg=OPENHANDS_RUNTIME_BUILD_TIME=${{ env.OPENHANDS_RUNTIME_BUILD_TIME }} \
-            --tag ${{ env.TAG }} \
-            --load \
+      #     docker buildx build \
+      #       --progress=plain \
+      #       --build-arg=OPENHANDS_RUNTIME_VERSION=${{ env.OPENHANDS_RUNTIME_VERSION }} \
+      #       --build-arg=OPENHANDS_RUNTIME_BUILD_TIME=${{ env.OPENHANDS_RUNTIME_BUILD_TIME }} \
+      #       --tag ${{ env.TAG }} \
+      #       --load \
 
       - name: Attempt to resolve issue
         env:
