@@ -75,29 +75,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      # - name: Build and push Docker image
-      #   id: docker_build
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: .
-      #     file: ./Dockerfile.sandbox
-      #     push: false
-      #     tags: sandbox:latest
-      #     load: true
+      - name: Build and push Docker image
+        id: docker_build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.sandbox
+          push: false
+          tags: sandbox:latest
+          outputs: type=docker,dest=/tmp/sandbox.tar
 
-      # - name: Check Docker image
-      #   run: |
-      #     echo "Loading Docker image from /tmp/sandbox.tar..."
-      #     if docker load --input /tmp/.buildx-cache/sandbox.tar; then
-      #       echo "✅ Docker image loaded successfully"
-      #       docker images | grep sandbox
-      #     else
-      #       echo "❌ Failed to load Docker image"
-      #       exit 1
-      #     fi
+      - name: Check Docker image
+        run: |
+          echo "Loading Docker image from /tmp/sandbox.tar..."
+          if docker load --input /tmp/sandbox.tar; then
+            echo "✅ Docker image loaded successfully"
+            docker image ls -a
+          else
+            echo "❌ Failed to load Docker image"
+            exit 1
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -135,10 +135,10 @@ jobs:
 
       - name: Check required environment variables
         env:
-          LLM_MODEL: 'gpt-4o'
+          LLM_MODEL: "gpt-4o"
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
-          LLM_API_VERSION: ''
+          LLM_API_VERSION: ""
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
           PAT_USERNAME: ${{ secrets.PAT_USERNAME }}
           GITHUB_TOKEN: ${{ github.token }}
@@ -254,15 +254,30 @@ jobs:
       #     username: ${{ vars.DOCKERHUB_USERNAME }}
       #     password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Test Docker buildx
+        env:
+          OPENHANDS_RUNTIME_VERSION: "0.0.1"
+          OPENHANDS_RUNTIME_BUILD_TIME: "2025-03-30T00:00:00"
+          TAG: "sandbox:latest"
+        run: |
+          echo "Test buliding docker image..."
+
+          docker buildx build \
+            --progress=plain \
+            --build-arg=OPENHANDS_RUNTIME_VERSION=${{ env.OPENHANDS_RUNTIME_VERSION }} \
+            --build-arg=OPENHANDS_RUNTIME_BUILD_TIME=${{ env.OPENHANDS_RUNTIME_BUILD_TIME }} \
+            --tag ${{ env.TAG }} \
+            --load \
+
       - name: Attempt to resolve issue
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
           GITHUB_USERNAME: ${{ secrets.PAT_USERNAME || 'openhands-agent' }}
           GIT_USERNAME: ${{ secrets.PAT_USERNAME || 'openhands-agent' }}
-          LLM_MODEL: 'gpt-4o'
+          LLM_MODEL: "gpt-4o"
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
-          LLM_API_VERSION: ''
+          LLM_API_VERSION: ""
           PYTHONPATH: ""
           BASE_CONTAINER_IMAGE: ruby:3.2-bullseye
         run: |
@@ -302,10 +317,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
           GITHUB_USERNAME: ${{ secrets.PAT_USERNAME || 'openhands-agent' }}
           GIT_USERNAME: ${{ secrets.PAT_USERNAME || 'openhands-agent' }}
-          LLM_MODEL: 'gpt-4o'
+          LLM_MODEL: "gpt-4o"
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
-          LLM_API_VERSION: ''
+          LLM_API_VERSION: ""
           PYTHONPATH: ""
         run: |
           if [ "${{ steps.check_result.outputs.RESOLUTION_SUCCESS }}" == "true" ]; then
