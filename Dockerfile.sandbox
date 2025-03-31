@@ -3,3 +3,9 @@ FROM nikolaik/python-nodejs:python3.12-nodejs22
 # install go
 RUN apt-get update && apt-get install -y golang
 
+# set go path
+ENV GOPATH=/go
+ENV PATH=$PATH:$GOPATH/bin
+
+# install go dependencies
+RUN go mod init github.com/openhands-ai/openhands-resolver
