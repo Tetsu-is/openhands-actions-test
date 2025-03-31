@@ -98,7 +98,7 @@ jobs:
           context: .
           file: ./Dockerfile.sandbox
           push: true
-          tags: localhost:5000/my-registry/sandbox:latest
+          tags: localhost:5000/sandbox:latest
 
       # - name: Check Docker image
       #   run: |
@@ -291,7 +291,7 @@ jobs:
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
           LLM_API_VERSION: ""
           PYTHONPATH: ""
-          BASE_CONTAINER_IMAGE: localhost:5000/my-registry/sandbox:latest
+          BASE_CONTAINER_IMAGE: localhost:5000/sandbox:latest
         run: |
           echo "Logging in to Docker Hub..."
           docker login -u ${{ vars.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
