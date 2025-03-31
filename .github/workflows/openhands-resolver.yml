@@ -86,13 +86,11 @@ jobs:
 
       - name: Build and push Docker image
         id: docker_build
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile.sandbox
-          push: false
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/sandbox:latest
-          load: true
+        run: |
+          docker buildx build \
+            --load \
+            --tag sandbox:latest \
+            --file Dockerfile.sandbox .
 
       # - name: Check Docker image
       #   run: |
@@ -279,7 +277,7 @@ jobs:
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
           LLM_API_VERSION: ""
           PYTHONPATH: ""
-          BASE_CONTAINER_IMAGE: ${{ vars.DOCKERHUB_USERNAME }}/sandbox:latest
+          BASE_CONTAINER_IMAGE: sandbox:latest
         run: |
           echo "Logging in to Docker Hub..."
           docker login -u ${{ vars.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
