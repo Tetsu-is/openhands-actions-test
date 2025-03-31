@@ -86,18 +86,18 @@ jobs:
           file: ./Dockerfile.sandbox
           push: false
           tags: sandbox:latest
-          outputs: type=docker,dest=/tmp/sandbox.tar
+          load: true
 
-      - name: Check Docker image
-        run: |
-          echo "Loading Docker image from /tmp/sandbox.tar..."
-          if docker load --input /tmp/sandbox.tar; then
-            echo "✅ Docker image loaded successfully"
-            docker image ls -a
-          else
-            echo "❌ Failed to load Docker image"
-            exit 1
-          fi
+      # - name: Check Docker image
+      #   run: |
+      #     echo "Loading Docker image from /tmp/sandbox.tar..."
+      #     if docker load --input /tmp/sandbox.tar; then
+      #       echo "✅ Docker image loaded successfully"
+      #       docker image ls -a
+      #     else
+      #       echo "❌ Failed to load Docker image"
+      #       exit 1
+      #     fi
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -283,6 +283,9 @@ jobs:
         run: |
           echo "Logging in to Docker Hub..."
           docker login -u ${{ vars.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+
+          echo "check images"
+          docker images
 
           echo "Resolving issue..."
           cd /tmp && python -m openhands.resolver.resolve_issue \
