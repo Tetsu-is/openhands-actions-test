@@ -239,9 +239,9 @@ jobs:
             core.setOutput('isExperimental', isExperimentalLabel || isIssueCommentExperimental || isReviewCommentExperimental);
 
             // Perform package installation
-             console.log("Installing experimental OpenHands...");
-              await exec.exec("python -m pip install --upgrade pip");
-              await exec.exec("pip install git+https://github.com/Tetsu-is/openhands.git@main"); 
+            console.log("Installing experimental OpenHands...");
+            await exec.exec("python -m pip install --upgrade pip");
+            await exec.exec("pip install git+https://github.com/Tetsu-is/openhands.git@resolver-add-base-container-image__add-log"); 
 
       # - name: Test Docker buildx
       #   env:
@@ -284,7 +284,7 @@ jobs:
             --token ${{ env.GITHUB_TOKEN }} \
             --llm-model ${{ env.LLM_MODEL }} \
             --llm-api-key ${{ env.LLM_API_KEY }} \
-            # --base-container-image ${{ env.BASE_CONTAINER_IMAGE }}
+            --base-container-image ${{ env.BASE_CONTAINER_IMAGE }}
 
       - name: Check resolution result
         id: check_result
