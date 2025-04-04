@@ -241,7 +241,7 @@ jobs:
             // Perform package installation
             console.log("Installing experimental OpenHands...");
             await exec.exec("python -m pip install --upgrade pip");
-            await exec.exec("pip install git+https://github.com/Tetsu-is/openhands.git@feat_add-base-container-image"); 
+            await exec.exec("pip install git+https://github.com/Tetsu-is/openhands.git@arg-base-container-image__add-docker-log__merge_main"); 
 
       # - name: Test Docker buildx
       #   env:
