@@ -85,12 +85,20 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push Docker image
-        id: docker_build
-        run: |
-          docker buildx build \
-            --load \
-            --tag sandbox:latest \
-            --file Dockerfile.sandbox .
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.sandbox
+          tags: sandbox:latest
+          load: true
+
+      # - name: Build and push Docker image
+      #   id: docker_build
+      #   run: |
+      #     docker buildx build \
+      #       --load \
+      #       --tag sandbox:latest \
+      #       --file Dockerfile.sandbox .
 
       # - name: Check Docker image
       #   run: |
