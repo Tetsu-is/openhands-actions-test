@@ -284,8 +284,8 @@ jobs:
           echo "check images"
           docker images
 
-          # echo "buildx use default instance"
-          # docker buildx use default
+          echo "buildx use default instance"
+          docker buildx use default
           echo "Resolving issue..."
           cd /tmp && python -m openhands.resolver.resolve_issue \
             --username ${{ env.GITHUB_USERNAME }} \
