@@ -6,13 +6,13 @@
 - issueを使って実装タスクやバグ修正を命令する
 - sandboxに必要な依存関係をカスタマイズする
 - 前提知識をファイルを使って読み込ませる
-- LiteLLMでLLMを使う
 
 ### 事前準備
 - githubのPATを作成する
 - LLMのAPIキー
 
 ## 導入手順
+[openhands-resolver.ymlの例](https://github.com/All-Hands-AI/OpenHands/blob/main/.github/workflows/openhands-resolver.yml)
 1. リポジトリに`.github/workflows/openhands-resolver.yml`を作成する
 2. repositoryの設定から必要なシークレットを設定する
    - `LLM_API_KEY`: LLMのAPIキー（必須）
@@ -28,8 +28,8 @@
    - Pull Requestレビューが提出された時
 
 4. エージェントの起動方法
-   - Issueに`fix-me`または`fix-me-experimental`ラベルを付与
-   - コメントで`@openhands-agent`または`@openhands-agent-exp`をメンション
+   - Issueに`fix-me`ラベルを付与
+   - コメントで`@openhands-agent`をメンション
    - ワークフローを直接呼び出し
 
 5. 実行結果の確認
@@ -38,6 +38,8 @@
    - 実行ログはGitHub Actionsのログで確認可能
 
 ## custom sandboxの設定方法
+[openhands-resolver.ymlの例](https://github.com/Tetsu-is/openhands-actions-test/blob/main/.github/workflows/openhands-resolver.yml)
+
 デフォルトのimageはnikolaik/python-nodejs:python3.12-nodejs22になっているので、pythonやnodejs以外の依存関係を使う場合は
 base imageを変更する必要があります。
 1. sandbox用のdocker imageを作成する
