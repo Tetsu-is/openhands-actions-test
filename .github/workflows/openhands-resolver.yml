@@ -2,29 +2,6 @@ name: Auto-Fix Tagged Issue with OpenHands
 
 on:
   workflow_call:
-    # inputs:
-    #   max_iterations:
-    #     required: false
-    #     type: number
-    #     default: 50
-    #   macro:
-    #     required: false
-    #     type: string
-    #     default: "@openhands-agent"
-    #   target_branch:
-    #     required: false
-    #     type: string
-    #     default: "main"
-    #     description: "Target branch to pull and create PR against"
-    #   LLM_API_VERSION:
-    #     required: false
-    #     type: string
-    #     default: ""
-    #   base_container_image:
-    #     required: false
-    #     type: string
-    #     default: ""
-    #     description: "Custom sandbox env"
     secrets:
       LLM_MODEL:
         required: false
