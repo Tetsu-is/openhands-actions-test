@@ -45,6 +45,8 @@ base imageを変更する必要があります。
 1. sandbox用のdocker imageを作成する
    - a. workflow内でDockerfileからimageをビルドする
    - b. registryからimageを取得する
+      - gcloudの認証
+      - docker pull
 2. `openhands.resolve_issue`の実行時オプションで`--base-container-image`にimageを指定する
 
 ## チューニング方法
