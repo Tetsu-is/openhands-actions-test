@@ -18,3 +18,20 @@ def test_read_items():
     assert response.status_code == 200
     assert "テストアイテム1" in response.json()["items"]
     assert "テストアイテム2" in response.json()["items"] 
+def test_delete_item():
+    # アイテムを追加
+    client.post("/items/", json={"name": "削除アイテム"})
+
+    # アイテムを削除
+    response = client.delete("/items/削除アイテム")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Item deleted", "item": "削除アイテム"}
+
+    # 削除されたことを確認
+    response = client.get("/items/")
+    assert "削除アイテム" not in response.json()["items"]
+
+    # 存在しないアイテムの削除を試みる
+    response = client.delete("/items/存在しないアイテム")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Item not found", "item": "存在しないアイテム"}
