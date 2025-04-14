@@ -1,11 +1,16 @@
 FROM nikolaik/python-nodejs:python3.12-nodejs22
 
-# install go
-RUN apt-get update && apt-get install -y golang
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl
 
-# set go path
-ENV GOPATH=/go
-ENV PATH=$PATH:$GOPATH/bin
+SHELL [ "/bin/bash", "-o", "pipefail", "-c" ]
 
-# install go dependencies
-RUN go mod init github.com/openhands-ai/openhands-resolver
+ENV RYE_HOME="/opt/rye"
+ENV PATH="$RYE_HOME/shims:$PATH"
+
+RUN curl -sSf https://rye.astral.sh/get | RYE_INSTALL_OPTION="--yes" RYE_HOME=$RYE_HOME bash && \
+    source "$RYE_HOME/env" && \
+    rye config --set-bool behavior.global-python=true
+

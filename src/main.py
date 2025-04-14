@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 app = FastAPI(title="OpenHands Actions API")
 
@@ -12,10 +13,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
-async def root():
-    return {"message": "test"}
+# アイテムのモデルを定義
+class Item(BaseModel):
+    name: str
 
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy"} 
+data_store = []
+
+@app.post("/items/")
+async def create_item(item: Item):
+    data_store.append(item.name)
+    return {"message": "Item added", "item": item.name}
+
+@app.get("/items/")
+async def read_items():
+    return {"items": data_store}
