@@ -27,3 +27,9 @@ async def create_item(item: Item):
 @app.get("/items/")
 async def read_items():
     return {"items": data_store}
+@app.delete("/items/{item_name}")
+async def delete_item(item_name: str):
+    if item_name in data_store:
+        data_store.remove(item_name)
+        return {"message": "Item deleted", "item": item_name}
+    return {"message": "Item not found", "item": item_name}
