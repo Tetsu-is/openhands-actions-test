@@ -61,13 +61,16 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v2'
         with:
-          context: .
-          file: Dockerfile.sandbox
-          tags: sandbox:latest
-          load: true
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+  
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+  
+      - name: 'Pull image from Artifact Registry'
+        run: 'docker pull ${{ secrets.ARTIFACT_REGISTRY_IMAGE }}:latest'
 
       - name: Set up Python
         uses: actions/setup-python@v5
