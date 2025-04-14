@@ -71,9 +71,9 @@ jobs:
 
       - name: 'Configure Docker'
         run: 'gcloud auth configure-docker'
-        
+
       - name: 'Pull image from Artifact Registry'
-        run: 'docker pull ${{secrets.GCP_REGION}}.${{ secrets.ARTIFACT_REGISTRY_IMAGE }}:latest'
+        run: 'docker pull ${{ secrets.ARTIFACT_REGISTRY_IMAGE }}:latest'
 
       - name: Set up Python
         uses: actions/setup-python@v5
