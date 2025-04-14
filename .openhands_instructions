@@ -1,2 +1,25 @@
-# openhands-actions-test
+# プロジェクト構成
+これはpythonのfastapiを使った簡易的なサーバーアプリケーションである
+
+`/src/main.py`はfastapiのサーバーを起動するためのエントリーポイントである
+
+`/src/tests`はpytestのテストコードを格納するディレクトリである
+
+`/src/tests/test_main.py`は`/src/main.py`のテストコードである
+
+
+# プロジェクトのセットアップ
+make setupを実行することでpythonの依存パッケージをインストールすることができる
+
+
+# プロジェクトの実行
+make runを実行することでfastapiのサーバーを起動することができる
+
+
+# プロジェクトのテスト
+make testを実行することでpytestのテストを実行することができる
+
+
+
+
 
