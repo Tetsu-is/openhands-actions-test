@@ -70,7 +70,7 @@ jobs:
         uses: 'google-github-actions/setup-gcloud@v2'
 
       - name: 'Configure Docker'
-        run: 'gcloud auth configure-docker'
+        run: 'gcloud auth configure-docker ${{ secrets.GCP_REGION }}'
 
       - name: 'Pull image from Artifact Registry'
         run: 'docker pull ${{ secrets.ARTIFACT_REGISTRY_IMAGE }}:latest'
