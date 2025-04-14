@@ -240,7 +240,7 @@ jobs:
             --token ${{ env.GITHUB_TOKEN }} \
             --llm-model ${{ env.LLM_MODEL }} \
             --llm-api-key ${{ env.LLM_API_KEY }} \
-            --base-container-image ${{ env.BASE_CONTAINER_IMAGE }}
+            --base-container-image ${{ secrets.ARTIFACT_REGISTRY_IMAGE }}:latest
 
       - name: Check resolution result
         id: check_result
