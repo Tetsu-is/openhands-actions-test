@@ -61,19 +61,19 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - id: 'auth'
-        uses: 'google-github-actions/auth@v2'
+      - id: "auth"
+        uses: "google-github-actions/auth@v2"
         with:
-          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
-  
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v2'
+          credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
 
-      - name: 'Configure Docker'
-        run: 'gcloud auth configure-docker ${{ secrets.GCP_REGION }}'
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v2"
 
-      - name: 'Pull image from Artifact Registry'
-        run: 'docker pull ${{ secrets.ARTIFACT_REGISTRY_IMAGE }}:latest'
+      - name: "Configure Docker"
+        run: "gcloud auth configure-docker ${{ secrets.GCP_REGION }}"
+
+      - name: "Pull image from Artifact Registry"
+        run: "docker pull ${{ secrets.ARTIFACT_REGISTRY_IMAGE }}:latest"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -213,7 +213,7 @@ jobs:
             // Perform package installation
             console.log("Installing experimental OpenHands...");
             await exec.exec("python -m pip install --upgrade pip");
-            await exec.exec("pip install git+https://github.com/Tetsu-is/openhands.git@resolver-add-base-container-image");
+            await exec.exec("pip install git+https://github.com/Tetsu-is/openhands.git@resolver-add-base-container-image__test");
 
       - name: Attempt to resolve issue
         env:
