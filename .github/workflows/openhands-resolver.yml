@@ -278,7 +278,8 @@ jobs:
               --target-branch ${{ env.TARGET_BRANCH }} \
               --pr-type draft \
               --reviewer ${{ github.actor }} | tee pr_result.txt && \
-              --base-domain github.com
+              --token ${{ env.GITHUB_TOKEN }} \
+              --base-domain github.com \
               grep "draft created" pr_result.txt | sed 's/.*\///g' > pr_number.txt
           else
             cd /tmp && python -m openhands.resolver.send_pull_request \
