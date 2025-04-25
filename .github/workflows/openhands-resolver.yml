@@ -207,7 +207,7 @@ jobs:
             // Perform package installation
             console.log("Installing experimental OpenHands...");
             await exec.exec("python -m pip install --upgrade pip");
-            await exec.exec("pip install git+https://github.com/all-hands-ai/openhands.git");
+            await exec.exec("pip install git+https://github.com/tetsu-is/openhands.git@resolver-add-base-container-image");
 
       - name: Attempt to resolve issue
         env:
