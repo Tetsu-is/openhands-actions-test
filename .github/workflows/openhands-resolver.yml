@@ -69,6 +69,14 @@ jobs:
       - name: "Pull image from Artifact Registry"
         run: "docker pull ${{ secrets.ARTIFACT_REGISTRY_IMAGE }}:latest"
 
+      # - name: "Build base container image"
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: .
+      #     file: Dockerfile.sandbox
+      #     tags: sandbox:latest
+      #     load: true
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -207,7 +215,7 @@ jobs:
             // Perform package installation
             console.log("Installing experimental OpenHands...");
             await exec.exec("python -m pip install --upgrade pip");
-            await exec.exec("pip install git+https://github.com/tetsu-is/openhands.git@resolver-add-base-container-image");
+            await exec.exec("pip install git+https://github.com/all-hands-ai/openhands.git");
 
       - name: Attempt to resolve issue
         env:
@@ -265,6 +273,8 @@ jobs:
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
           LLM_API_VERSION: ""
           PYTHONPATH: ""
+          BASE_DOMAIN: github.com
+
         run: |
           if [ "${{ steps.check_result.outputs.RESOLUTION_SUCCESS }}" == "true" ]; then
             cd /tmp && python -m openhands.resolver.send_pull_request \
@@ -273,7 +283,7 @@ jobs:
               --pr-type draft \
               --reviewer ${{ github.actor }} | tee pr_result.txt && \
               --token ${{ env.GITHUB_TOKEN }} \
-              --base-domain github.com \
+              --base-domain ${{ env.BASE_DOMAIN }} \
               grep "draft created" pr_result.txt | sed 's/.*\///g' > pr_number.txt
           else
             cd /tmp && python -m openhands.resolver.send_pull_request \
