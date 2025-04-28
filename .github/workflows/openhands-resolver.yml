@@ -242,8 +242,7 @@ jobs:
             --token ${{ env.GITHUB_TOKEN }} \
             --llm-model ${{ env.LLM_MODEL }} \
             --llm-api-key ${{ env.LLM_API_KEY }} \
-            --base-container-image ${{ secrets.ARTIFACT_REGISTRY_IMAGE }}:latest \
-            --base-domain github.com
+            --base-container-image ${{ secrets.ARTIFACT_REGISTRY_IMAGE }}:latest
 
       - name: Check resolution result
         id: check_result
@@ -273,7 +272,6 @@ jobs:
           LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
           LLM_API_VERSION: ""
           PYTHONPATH: ""
-          BASE_DOMAIN: github.com
 
         run: |
           if [ "${{ steps.check_result.outputs.RESOLUTION_SUCCESS }}" == "true" ]; then
@@ -281,9 +279,8 @@ jobs:
               --issue-number ${{ env.ISSUE_NUMBER }} \
               --target-branch ${{ env.TARGET_BRANCH }} \
               --pr-type draft \
-              --reviewer ${{ github.actor }} | tee pr_result.txt && \
-              --token ${{ env.GITHUB_TOKEN }} \
-              --base-domain ${{ env.BASE_DOMAIN }} \
+              --reviewer ${{ github.actor }} \
+              --token ${{ env.GITHUB_TOKEN }} | tee pr_result.txt && \
               grep "draft created" pr_result.txt | sed 's/.*\///g' > pr_number.txt
           else
             cd /tmp && python -m openhands.resolver.send_pull_request \
