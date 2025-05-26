@@ -1,3 +1,4 @@
+# OpenHandsの検証用のworkflowです。検証後に削除します。
 name: Auto-Fix Tagged Issue with OpenHands
 
 on:
@@ -7,8 +8,6 @@ on:
         required: false
       LLM_API_KEY:
         required: true
-      LLM_BASE_URL:
-        required: false
       PAT_TOKEN:
         required: false
       PAT_USERNAME:
@@ -34,14 +33,15 @@ jobs:
   auto-fix:
     if: |
       github.event_name == 'workflow_call' ||
-      github.event.label.name == 'fix-me' ||
-      github.event.label.name == 'fix-me-experimental' ||
+      github.event.label.name == 'fix-me-gpt4o' ||
+      github.event.label.name == 'fix-me-claude3.5sonnet' ||
+      github.event.label.name == 'fix-me-claude3.7sonnet' ||
+      github.event.label.name == 'fix-me-claude-sonnet-4' ||
       (
         ((github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment') &&
         contains(github.event.comment.body,'@openhands-agent') &&
         (github.event.comment.author_association == 'OWNER' || github.event.comment.author_association == 'COLLABORATOR' || github.event.comment.author_association == 'MEMBER')
         ) ||
-
         (github.event_name == 'pull_request_review' &&
         contains(github.event.review.body,'@openhands-agent') &&
         (github.event.review.author_association == 'OWNER' || github.event.review.author_association == 'COLLABORATOR' || github.event.review.author_association == 'MEMBER')
@@ -55,27 +55,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - id: "auth"
-        uses: "google-github-actions/auth@v2"
+      - name: "Build base container image"
+        uses: docker/build-push-action@v5
         with:
-          credentials_json: "${{ secrets.GCP_CREDENTIALS }}"
-
-      - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v2"
-
-      - name: "Configure Docker"
-        run: "gcloud auth configure-docker ${{ secrets.GCP_REGION }}"
-
-      - name: "Pull image from Artifact Registry"
-        run: "docker pull ${{ secrets.ARTIFACT_REGISTRY_IMAGE }}:latest"
-
-      # - name: "Build base container image"
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: .
-      #     file: Dockerfile.sandbox
-      #     tags: sandbox:latest
-      #     load: true
+          context: .
+          file: Dockerfile.sandbox
+          tags: sandbox:latest
+          load: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -86,11 +72,9 @@ jobs:
         run: |
           python -m pip index versions openhands-ai > openhands_versions.txt
           OPENHANDS_VERSION=$(head -n 1 openhands_versions.txt | awk '{print $2}' | tr -d '()')
-
           # Create a new requirements.txt locally within the workflow, ensuring no reference to the repo's file
           echo "openhands-ai==${OPENHANDS_VERSION}" > /tmp/requirements.txt
           cat /tmp/requirements.txt
-
       - name: Cache pip dependencies
         if: |
           !(
@@ -110,38 +94,23 @@ jobs:
           key: ${{ runner.os }}-pip-openhands-resolver-${{ hashFiles('/tmp/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-openhands-resolver-${{ hashFiles('/tmp/requirements.txt') }}
-
       - name: Check required environment variables
         env:
-          LLM_MODEL: "gpt-4o"
-          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
           LLM_API_VERSION: ""
-          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
-          PAT_USERNAME: ${{ secrets.PAT_USERNAME }}
+          PAT_TOKEN: ${{ secrets.OPENHANDS_PAT_TOKEN }}
+          PAT_USERNAME: ${{ secrets.OPENHANDS_PAT_USERNAME }}
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          required_vars=("LLM_API_KEY")
-          for var in "${required_vars[@]}"; do
-            if [ -z "${!var}" ]; then
-              echo "Error: Required environment variable $var is not set."
-              exit 1
-            fi
-          done
-
           # Check optional variables and warn about fallbacks
           if [ -z "$LLM_BASE_URL" ]; then
             echo "Warning: LLM_BASE_URL is not set, will use default API endpoint"
           fi
-
           if [ -z "$PAT_TOKEN" ]; then
             echo "Warning: PAT_TOKEN is not set, falling back to GITHUB_TOKEN"
           fi
-
           if [ -z "$PAT_USERNAME" ]; then
             echo "Warning: PAT_USERNAME is not set, will use openhands-agent"
           fi
-
       - name: Set environment variables
         run: |
           # Handle pull request events first
@@ -161,23 +130,49 @@ jobs:
             echo "ISSUE_NUMBER=${{ github.event.issue.number }}" >> $GITHUB_ENV
             echo "ISSUE_TYPE=issue" >> $GITHUB_ENV
           fi
-
           if [ -n "${{ github.event.review.body }}" ]; then
             echo "COMMENT_ID=${{ github.event.review.id || 'None' }}" >> $GITHUB_ENV
           else
             echo "COMMENT_ID=${{ github.event.comment.id || 'None' }}" >> $GITHUB_ENV
           fi
-
           echo "MAX_ITERATIONS=50" >> $GITHUB_ENV
-          echo "SANDBOX_ENV_GITHUB_TOKEN=${{ secrets.PAT_TOKEN || github.token }}" >> $GITHUB_ENV
-
+          echo "SANDBOX_ENV_GITHUB_TOKEN=${{ secrets.OPENHANDS_PAT_TOKEN || github.token }}" >> $GITHUB_ENV
           # Set branch variables
-          echo "TARGET_BRANCH=${{ inputs.target_branch || 'main' }}" >> $GITHUB_ENV
+          echo "TARGET_BRANCH=${{ inputs.target_branch || 'develop' }}" >> $GITHUB_ENV
 
+          # Set LLM Model
+          if [ "${{ github.event.label.name }}" == "fix-me-gpt4o" ]; then
+            echo "LLM_MODEL=gpt-4o" >> $GITHUB_ENV
+          elif [ "${{ github.event.label.name }}" == "fix-me-claude3.5sonnet" ]; then
+            echo "LLM_MODEL=claude-3-5-sonnet-20241022" >> $GITHUB_ENV
+          elif [ "${{ github.event.label.name }}" == "fix-me-claude3.7sonnet" ]; then
+            echo "LLM_MODEL=claude-3-7-sonnet-20250219" >> $GITHUB_ENV
+          elif [ "${{ github.event.label.name }}" == "fix-me-claude-sonnet-4" ]; then
+            echo "LLM_MODEL=claude-sonnet-4-20250514" >> $GITHUB_ENV
+          else
+            # @openhands-agentメンションの場合のため
+            echo "use default model"
+            echo "LLM_MODEL=${{ secrets.OPENHANDS_LLM_MODEL }}" >> $GITHUB_ENV
+          fi
+
+          # Set LLM API key
+          if [ "${{ github.event.label.name }}" == "fix-me-gpt4o" ]; then
+            echo "LLM_API_KEY=${{ secrets.OPENHANDS_OPENAI_API_KEY }}" >> $GITHUB_ENV
+          elif [ "${{ github.event.label.name }}" == "fix-me-claude3.5sonnet" ]; then
+            echo "LLM_API_KEY=${{ secrets.OPENHANDS_ANTHROPIC_API_KEY }}" >> $GITHUB_ENV
+          elif [ "${{ github.event.label.name }}" == "fix-me-claude3.7sonnet" ]; then
+            echo "LLM_API_KEY=${{ secrets.OPENHANDS_ANTHROPIC_API_KEY }}" >> $GITHUB_ENV
+          elif [ "${{ github.event.label.name }}" == "fix-me-claude-sonnet-4" ]; then
+            echo "LLM_API_KEY=${{ secrets.OPENHANDS_ANTHROPIC_API_KEY }}" >> $GITHUB_ENV
+          else
+            # @openhands-agentメンションの場合のため
+            echo "use default key for default model"
+            echo "LLM_API_KEY=${{ secrets.OPENHANDS_LLM_API_KEY }}" >> $GITHUB_ENV
+          fi
       - name: Comment on issue with start message
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.PAT_TOKEN || github.token }}
+          github-token: ${{ secrets.OPENHANDS_PAT_TOKEN || github.token }}
           script: |
             const issueType = process.env.ISSUE_TYPE;
             github.rest.issues.createComment({
@@ -186,7 +181,6 @@ jobs:
               repo: context.repo.repo,
               body: `[OpenHands](https://github.com/All-Hands-AI/OpenHands) started fixing the ${issueType}! You can monitor the progress [here](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}).`
             });
-
       - name: Install OpenHands
         id: install_openhands
         uses: actions/github-script@v7
@@ -208,42 +202,31 @@ jobs:
               commentBody.includes("@openhands-agent-exp");
             const isReviewCommentExperimental =
               eventName === "pull_request_review" && reviewBody.includes("@openhands-agent-exp");
-
             // Set output variable
             core.setOutput('isExperimental', isExperimentalLabel || isIssueCommentExperimental || isReviewCommentExperimental);
-
             // Perform package installation
             console.log("Installing experimental OpenHands...");
             await exec.exec("python -m pip install --upgrade pip");
             await exec.exec("pip install git+https://github.com/all-hands-ai/openhands.git");
-
       - name: Attempt to resolve issue
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
-          GITHUB_USERNAME: ${{ secrets.PAT_USERNAME || 'openhands-agent' }}
-          GIT_USERNAME: ${{ secrets.PAT_USERNAME || 'openhands-agent' }}
-          LLM_MODEL: "gpt-4o"
-          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+          GITHUB_TOKEN: ${{ secrets.OPENHANDS_PAT_TOKEN || github.token }}
+          GITHUB_USERNAME: ${{ secrets.OPENHANDS_PAT_USERNAME || 'openhands-agent' }}
+          GIT_USERNAME: ${{ secrets.OPENHANDS_PAT_USERNAME || 'openhands-agent' }}
           LLM_API_VERSION: ""
           PYTHONPATH: ""
           BASE_CONTAINER_IMAGE: sandbox:latest
         run: |
-          echo "check images"
-          docker images
-
-          # echo "buildx use default instance"
-          # docker buildx use default
           echo "Resolving issue..."
           cd /tmp && python -m openhands.resolver.resolve_issue \
             --username ${{ env.GITHUB_USERNAME }} \
             --selected-repo ${{ github.repository }} \
+            --issue-type ${{ env.ISSUE_TYPE }} \
             --issue-number ${{ env.ISSUE_NUMBER }} \
             --token ${{ env.GITHUB_TOKEN }} \
             --llm-model ${{ env.LLM_MODEL }} \
             --llm-api-key ${{ env.LLM_API_KEY }} \
-            --base-container-image ${{ secrets.ARTIFACT_REGISTRY_IMAGE }}:latest
-
+            --base-container-image sandbox:latest
       - name: Check resolution result
         id: check_result
         run: |
@@ -252,7 +235,6 @@ jobs:
           else
             echo "RESOLUTION_SUCCESS=false" >> $GITHUB_OUTPUT
           fi
-
       - name: Upload output.jsonl as artifact
         uses: actions/upload-artifact@v4
         if: always() # Upload even if the previous steps fail
@@ -264,12 +246,9 @@ jobs:
       - name: Create draft PR or push branch
         if: always() # Create PR or branch even if the previous steps fail
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
-          GITHUB_USERNAME: ${{ secrets.PAT_USERNAME || 'openhands-agent' }}
-          GIT_USERNAME: ${{ secrets.PAT_USERNAME || 'openhands-agent' }}
-          LLM_MODEL: "gpt-4o"
-          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+          GITHUB_TOKEN: ${{ secrets.OPENHANDS_PAT_TOKEN || github.token }}
+          GITHUB_USERNAME: ${{ secrets.OPENHANDS_PAT_USERNAME || 'openhands-agent' }}
+          GIT_USERNAME: ${{ secrets.OPENHANDS_PAT_USERNAME || 'openhands-agent' }}
           LLM_API_VERSION: ""
           PYTHONPATH: ""
 
@@ -289,7 +268,6 @@ jobs:
               --send-on-failure | tee branch_result.txt && \
               grep "branch created" branch_result.txt | sed 's/.*\///g; s/.expand=1//g' > branch_name.txt
           fi
-
       # Step leaves comment for when agent is invoked on PR
       - name: Analyze Push Logs (Updated PR or No Changes) # Skip comment if PR update was successful OR leave comment if the agent made no code changes
         uses: actions/github-script@v7
@@ -297,20 +275,17 @@ jobs:
         env:
           AGENT_RESPONDED: ${{ env.AGENT_RESPONDED || 'false' }}
         with:
-          github-token: ${{ secrets.PAT_TOKEN || github.token }}
+          github-token: ${{ secrets.OPENHANDS_PAT_TOKEN || github.token }}
           script: |
             const fs = require('fs');
             const issueNumber = ${{ env.ISSUE_NUMBER }};
             let logContent = '';
-
             try {
               logContent = fs.readFileSync('/tmp/pr_result.txt', 'utf8').trim();
             } catch (error) {
               console.error('Error reading pr_result.txt file:', error);
             }
-
             const noChangesMessage = `No changes to commit for issue #${issueNumber}. Skipping commit.`;
-
             // Check logs from send_pull_request.py (pushes code to GitHub)
             if (logContent.includes("Updated pull request")) {
               console.log("Updated pull request found. Skipping comment.");
@@ -324,7 +299,6 @@ jobs:
               });
               process.env.AGENT_RESPONDED = 'true';
             }
-
       # Step leaves comment for when agent is invoked on issue
       - name: Comment on issue # Comment link to either PR or branch created by agent
         uses: actions/github-script@v7
@@ -332,17 +306,15 @@ jobs:
         env:
           AGENT_RESPONDED: ${{ env.AGENT_RESPONDED || 'false' }}
         with:
-          github-token: ${{ secrets.PAT_TOKEN || github.token }}
+          github-token: ${{ secrets.OPENHANDS_PAT_TOKEN || github.token }}
           script: |
             const fs = require('fs');
             const path = require('path');
             const issueNumber = ${{ env.ISSUE_NUMBER }};
             const success = ${{ steps.check_result.outputs.RESOLUTION_SUCCESS }};
-
             let prNumber = '';
             let branchName = '';
             let resultExplanation = '';
-
             try {
               if (success) {
                 prNumber = fs.readFileSync('/tmp/pr_number.txt', 'utf8').trim();
@@ -352,8 +324,6 @@ jobs:
             } catch (error) {
               console.error('Error reading file:', error);
             }
-
-
             try {
               if (!success){
                 // Read result_explanation from JSON file for failed resolution
@@ -361,7 +331,6 @@ jobs:
                 if (fs.existsSync(outputFilePath)) {
                   const outputContent = fs.readFileSync(outputFilePath, 'utf8');
                   const jsonLines = outputContent.split('\n').filter(line => line.trim() !== '');
-
                   if (jsonLines.length > 0) {
                     // First entry in JSON lines has the key 'result_explanation'
                     const firstEntry = JSON.parse(jsonLines[0]);
@@ -372,7 +341,6 @@ jobs:
             } catch (error){
               console.error('Error reading file:', error);
             }
-
             // Check "success" log from resolver output
             if (success && prNumber) {
               github.rest.issues.createComment({
@@ -384,11 +352,9 @@ jobs:
               process.env.AGENT_RESPONDED = 'true';
             } else if (!success && branchName) {
               let commentBody = `An attempt was made to automatically fix this issue, but it was unsuccessful. A branch named '${branchName}' has been created with the attempted changes. You can view the branch [here](https://github.com/${context.repo.owner}/${context.repo.repo}/tree/${branchName}). Manual intervention may be required.`;
-
               if (resultExplanation) {
                 commentBody += `\n\nAdditional details about the failure:\n${resultExplanation}`;
               }
-
               github.rest.issues.createComment({
                 issue_number: issueNumber,
                 owner: context.repo.owner,
@@ -397,16 +363,14 @@ jobs:
               });
               process.env.AGENT_RESPONDED = 'true';
             }
-
       # Leave error comment when both PR/Issue comment handling fail
       - name: Fallback Error Comment
         uses: actions/github-script@v7
         if: ${{ env.AGENT_RESPONDED == 'false' }} # Only run if no conditions were met in previous steps
         with:
-          github-token: ${{ secrets.PAT_TOKEN || github.token }}
+          github-token: ${{ secrets.OPENHANDS_PAT_TOKEN || github.token }}
           script: |
             const issueNumber = ${{ env.ISSUE_NUMBER }};
-
             github.rest.issues.createComment({
               issue_number: issueNumber,
               owner: context.repo.owner,
