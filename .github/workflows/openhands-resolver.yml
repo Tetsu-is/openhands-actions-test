@@ -138,7 +138,7 @@ jobs:
           echo "MAX_ITERATIONS=50" >> $GITHUB_ENV
           echo "SANDBOX_ENV_GITHUB_TOKEN=${{ secrets.OPENHANDS_PAT_TOKEN || github.token }}" >> $GITHUB_ENV
           # Set branch variables
-          echo "TARGET_BRANCH=${{ inputs.target_branch || 'develop' }}" >> $GITHUB_ENV
+          echo "TARGET_BRANCH=${{ inputs.target_branch || 'main' }}" >> $GITHUB_ENV
 
           # Set LLM Model
           if [ "${{ github.event.label.name }}" == "fix-me-gpt4o" ]; then
