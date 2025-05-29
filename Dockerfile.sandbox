@@ -2,28 +2,28 @@ FROM nikolaik/python-nodejs:python3.12-nodejs22
 
 
 # # install rye
-# RUN apt-get update && \
-#     apt-get install -y curl && \
-#     apt clean && \
-#     rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y curl && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# ARG USERNAME=ryeuser
-# RUN useradd ${USERNAME} --create-home
-# USER ${USERNAME}
+ARG USERNAME=ryeuser
+RUN useradd ${USERNAME} --create-home
+USER ${USERNAME}
 
-# WORKDIR /home/${USERNAME}
+WORKDIR /home/${USERNAME}
 
-# ENV RYE_HOME=/home/{$USERNAME}/.rye
-# ENV PATH ${RYE_HOME}/shims:/home/${USERNAME}/app/.venv/bin:${PATH}
+ENV RYE_HOME=/home/{$USERNAME}/.rye
+ENV PATH ${RYE_HOME}/shims:/home/${USERNAME}/app/.venv/bin:${PATH}
 
-# RUN curl -fsSL https://rye-up.com/get | RYE_NO_AUTO_INSTALL=1 RYE_INSTALL_OPTIONS="--yes" bash
+RUN curl -fsSL https://rye-up.com/get | RYE_NO_AUTO_INSTALL=1 RYE_INSTALL_OPTIONS="--yes" bash
 
 # # install go
-RUN apt-get update && apt-get install -y golang
+# RUN apt-get update && apt-get install -y golang
 
-# # set go path
-ENV GOPATH=/go
-ENV PATH=$PATH:$GOPATH/bin
+# # # set go path
+# ENV GOPATH=/go
+# ENV PATH=$PATH:$GOPATH/bin
 
-# # install go dependencies
-RUN go mod init github.com/openhands-ai/openhands-resolver
+# # # install go dependencies
+# RUN go mod init github.com/openhands-ai/openhands-resolver
