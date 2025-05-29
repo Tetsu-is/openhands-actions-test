@@ -16,9 +16,9 @@ WORKDIR /home/${USERNAME}
 ENV RYE_HOME=/home/${USERNAME}/.rye
 ENV PATH ${RYE_HOME}/shims:/home/${USERNAME}/app/.venv/bin:${PATH}
 
-# RUN curl -fsSL https://rye-up.com/get | RYE_NO_AUTO_INSTALL=1 RYE_INSTALL_OPTIONS="--yes" bash -s
-RUN curl -sSf https://rye.astral.sh/get | RYE_INSTALL_OPTION="--yes" bash && \
-rye config --set-bool behavior.global-python=true
+# RUN curl -sSf https://rye.astral.sh/get | RYE_INSTALL_OPTION="--yes" bash && \
+# rye config --set-bool behavior.global-python=true
+# temp comment out
 
 # # install go
 # RUN apt-get update && apt-get install -y golang
