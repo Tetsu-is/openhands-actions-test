@@ -45,3 +45,52 @@ def test_item_create_submit():
     new_items = response.json()["items"]
     assert len(new_items) == len(initial_items) + 1
     assert "Test Item" in new_items
+
+def test_item_delete():
+    """Test that deleting an item via the HTML endpoint works correctly"""
+    # First, create an item
+    client.post(
+        "/items/",
+        data={"name": "Item To Delete"},
+        follow_redirects=False
+    )
+
+    # Verify the item exists
+    response = client.get("/api/items/")
+    assert "Item To Delete" in response.json()["items"]
+
+    # Delete the item
+    response = client.delete(
+        "/items/",
+        params={"items": "Item To Delete"},
+        follow_redirects=False
+    )
+
+    # Check that we get redirected to the items list
+    assert response.status_code == 303
+    assert response.headers["location"] == "/items"
+
+    # Verify the item was deleted
+    response = client.get("/api/items/")
+    assert "Item To Delete" not in response.json()["items"]
+
+def test_item_delete_nonexistent():
+    """Test deleting a non-existent item via the HTML endpoint"""
+    # Get current items
+    response = client.get("/api/items/")
+    initial_items = response.json()["items"]
+
+    # Delete a non-existent item
+    response = client.delete(
+        "/items/",
+        params={"items": "Non-Existent Item"},
+        follow_redirects=False
+    )
+
+    # Check that we still get redirected to the items list
+    assert response.status_code == 303
+    assert response.headers["location"] == "/items"
+
+    # Verify no items were deleted
+    response = client.get("/api/items/")
+    assert response.json()["items"] == initial_items

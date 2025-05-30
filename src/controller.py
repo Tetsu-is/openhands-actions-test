@@ -80,6 +80,24 @@ async def create_item_submit(request: Request, name: str = Form(...)):
     # Redirect to the items list page
     return RedirectResponse(url="/items", status_code=303)
 
+@router.delete("/items/", response_class=HTMLResponse)
+async def delete_item_html(request: Request, items: str):
+    """
+    Delete an item by name
+
+    Args:
+        request: The request object
+        items: The name of the item to delete
+
+    Returns:
+        HTMLResponse: Redirect to the items list page
+    """
+    # Use the model to delete the item
+    Item.delete(items)
+
+    # Redirect to the items list page
+    return RedirectResponse(url="/items", status_code=303)
+
 @router.delete("/api/items/", response_model=ItemDeleteResponse)
 async def delete_item_api(item_request: ItemDeleteRequest):
     """
