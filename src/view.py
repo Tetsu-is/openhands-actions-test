@@ -1,9 +1,9 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, constr
 from typing import List
 
 class ItemCreateRequest(BaseModel):
     """Request model for creating an item"""
-    name: str
+    name: constr(min_length=1, max_length=15) = Field(..., description="アイテム名（1文字以上15文字以下）")
 
 class ItemCreateResponse(BaseModel):
     """Response model for item creation"""

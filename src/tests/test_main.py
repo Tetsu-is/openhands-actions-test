@@ -42,3 +42,17 @@ def test_delete_nonexistent_item():
     response = client.request("DELETE", "/api/items/", json={"name": "存在しないアイテム"})
     assert response.status_code == 200
     assert response.json() == {"message": "Item not found", "deleted": False}
+
+def test_create_item_validation():
+    # Test empty name
+    response = client.post("/api/items/", json={"name": ""})
+    assert response.status_code == 422  # Validation error
+
+    # Test too long name
+    response = client.post("/api/items/", json={"name": "a" * 16})
+    assert response.status_code == 422  # Validation error
+
+    # Test valid name
+    response = client.post("/api/items/", json={"name": "正しい名前"})
+    assert response.status_code == 200
+    assert response.json()["item"] == "正しい名前"
