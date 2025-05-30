@@ -19,8 +19,8 @@ permissions:
 
 jobs:
   run-headless-mode:
-    if : |
-        github.event.label.name == 'headless'
+    if: |
+      github.event.label.name == 'headless'
     runs-on: ubuntu-latest
     steps:
         - name: Checkout repository
@@ -68,7 +68,23 @@ jobs:
 
         - name: Set environment variables
           run: |
-            echo "ISSUE_NUMBER=${{ github.event.issue.number || github.event.pull_request.number }}" >> $GITHUB_ENV
+            # Handle pull request events first
+            if [ -n "${{ github.event.pull_request.number }}" ]; then
+              echo "ISSUE_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+              echo "ISSUE_TYPE=pr" >> $GITHUB_ENV
+            # Handle pull request review events
+            elif [ -n "${{ github.event.review.body }}" ]; then
+              echo "ISSUE_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+              echo "ISSUE_TYPE=pr" >> $GITHUB_ENV
+            # Handle issue comment events that reference a PR
+            elif [ -n "${{ github.event.issue.pull_request }}" ]; then
+              echo "ISSUE_NUMBER=${{ github.event.issue.number }}" >> $GITHUB_ENV
+              echo "ISSUE_TYPE=pr" >> $GITHUB_ENV
+            # Handle regular issue events
+            else
+              echo "ISSUE_NUMBER=${{ github.event.issue.number }}" >> $GITHUB_ENV
+              echo "ISSUE_TYPE=issue" >> $GITHUB_ENV
+            fi
         
         - name: Comment on issue or PR
           uses: actions/github-script@v7
