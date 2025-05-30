@@ -1,7 +1,12 @@
 from fastapi.testclient import TestClient
 from src.main import app
+from src.model import _item_store
 
 client = TestClient(app)
+
+def setup_function():
+    # Reset the items in the store before each test
+    _item_store._items = []
 
 def test_create_item():
     response = client.post("/items/", json={"name": "テストアイテム"})
@@ -17,4 +22,4 @@ def test_read_items():
     response = client.get("/items/")
     assert response.status_code == 200
     assert "テストアイテム1" in response.json()["items"]
-    assert "テストアイテム2" in response.json()["items"] 
+    assert "テストアイテム2" in response.json()["items"]
