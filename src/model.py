@@ -1,9 +1,30 @@
+class ValidationError(Exception):
+    """Custom exception for validation errors"""
+    pass
+
 class Item:
     # Class variable to store items (acting as a database)
     _item_list = []
 
     def __init__(self, name: str):
         self.name = name
+
+    @staticmethod
+    def validate_name(name: str) -> None:
+        """
+        Validate the item name
+
+        Args:
+            name: The name to validate
+
+        Raises:
+            ValidationError: If the name is invalid
+        """
+        if not isinstance(name, str):
+            raise ValidationError("アイテム名は文字列である必要があります")
+
+        if len(name) < 1 or len(name) > 15:
+            raise ValidationError("アイテム名は1文字以上15文字以下で入力してください")
 
     @classmethod
     def create(cls, name: str) -> bool:
@@ -15,7 +36,13 @@ class Item:
 
         Returns:
             bool: True if the item was successfully created
+
+        Raises:
+            ValidationError: If the name is invalid
         """
+        # Validate the name before creating
+        cls.validate_name(name)
+
         cls._item_list.append(name)
         return True
 
