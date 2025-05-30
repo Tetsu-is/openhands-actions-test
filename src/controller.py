@@ -1,13 +1,20 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request, Form, Depends
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.templating import Jinja2Templates
+from pathlib import Path
 from .model import Item
 from .view import ItemCreateRequest, ItemCreateResponse, ItemReadResponse
 
+# テンプレートディレクトリの設定
+templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
+
 router = APIRouter()
 
-@router.post("/items/", response_model=ItemCreateResponse)
-async def create_item(item_request: ItemCreateRequest):
+# API エンドポイント
+@router.post("/api/items/", response_model=ItemCreateResponse)
+async def create_item_api(item_request: ItemCreateRequest):
     """
-    Create a new item
+    Create a new item via API
 
     Args:
         item_request: The request containing the item name
@@ -21,10 +28,10 @@ async def create_item(item_request: ItemCreateRequest):
     # Return a response using the view model
     return ItemCreateResponse(message="Item added", item=item_request.name)
 
-@router.get("/items/", response_model=ItemReadResponse)
-async def read_items():
+@router.get("/api/items/", response_model=ItemReadResponse)
+async def read_items_api():
     """
-    Read all items
+    Read all items via API
 
     Returns:
         ItemReadResponse: A response containing all items
@@ -34,3 +41,38 @@ async def read_items():
 
     # Return a response using the view model
     return ItemReadResponse(items=items)
+
+# HTML テンプレートを使用したエンドポイント
+@router.get("/items", response_class=HTMLResponse)
+async def read_items_html(request: Request):
+    """
+    Read all items and render HTML template
+    """
+    items = Item.read()
+    return templates.TemplateResponse(
+        request,
+        "item_list.html",
+        {"items": items}
+    )
+
+@router.get("/items/create", response_class=HTMLResponse)
+async def create_item_form(request: Request, message: str = None):
+    """
+    Render the item creation form
+    """
+    return templates.TemplateResponse(
+        request,
+        "item_create.html",
+        {"message": message}
+    )
+
+@router.post("/items/", response_class=HTMLResponse)
+async def create_item_submit(request: Request, name: str = Form(...)):
+    """
+    Process the item creation form submission
+    """
+    # Use the model to create the item
+    Item.create(name)
+
+    # Redirect to the items list page
+    return RedirectResponse(url="/items", status_code=303)

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}アイテム作成{% endblock %}
+
+{% block content %}
+<h1>新しいアイテムを作成</h1>
+
+<form action="/items/" method="post">
+    <div class="form-group">
+        <label for="name">アイテム名:</label>
+        <input type="text" id="name" name="name" required>
+    </div>
+    <button type="submit" class="btn">作成</button>
+</form>
+
+{% if message %}
+<div style="margin-top: 20px; padding: 10px; background-color: #d4edda; border-radius: 4px;">
+    {{ message }}
+</div>
+{% endif %}
+{% endblock %}
