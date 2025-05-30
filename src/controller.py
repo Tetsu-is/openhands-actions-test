@@ -3,7 +3,10 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 from .model import Item
-from .view import ItemCreateRequest, ItemCreateResponse, ItemReadResponse
+from .view import (
+    ItemCreateRequest, ItemCreateResponse,
+    ItemReadResponse, ItemDeleteRequest, ItemDeleteResponse
+)
 
 # テンプレートディレクトリの設定
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
@@ -76,3 +79,23 @@ async def create_item_submit(request: Request, name: str = Form(...)):
 
     # Redirect to the items list page
     return RedirectResponse(url="/items", status_code=303)
+
+@router.delete("/api/items/", response_model=ItemDeleteResponse)
+async def delete_item_api(item_request: ItemDeleteRequest):
+    """
+    Delete an item via API
+
+    Args:
+        item_request: The request containing the item name to delete
+
+    Returns:
+        ItemDeleteResponse: A response indicating whether the item was deleted
+    """
+    # Use the model to delete the item
+    success = Item.delete(item_request.name)
+
+    # Return a response using the view model
+    if success:
+        return ItemDeleteResponse(message="Item deleted successfully", deleted=True)
+    else:
+        return ItemDeleteResponse(message="Item not found", deleted=False)
