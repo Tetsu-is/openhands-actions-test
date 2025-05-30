@@ -26,7 +26,7 @@ def test_delete_item():
     # アイテムを削除
     response = client.delete("/items/", params={"item": "削除アイテム"})
     assert response.status_code == 200
-    assert response.json() == {"message": "Item deleted", "item": "削除アイテム"}
+    assert response.json() == {"message": "item was deleted", "item": "削除アイテム"}
 
     # 削除されたことを確認
     response = client.get("/items/")

@@ -31,5 +31,5 @@ async def read_items():
 async def delete_item(item: str):
     if item in data_store:
         data_store.remove(item)
-        return {"message": "Item deleted", "item": item}
+        return {"message": "item was deleted", "item": item}
     return {"message": "Item not found", "item": item}
