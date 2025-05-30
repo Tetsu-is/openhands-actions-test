@@ -112,13 +112,13 @@ jobs:
                 await exec.exec("pip install git+https://github.com/all-hands-ai/openhands.git");
 
         - name: Run Headless Mode
-        #   env:
-        #     SANDBOX_RUNTIME_CONTAINER_IMAGE: docker.all-hands.dev/all-hands-ai/runtime:0.39-nikolaik
-        #     SANDBOX_USER_ID: ${{ github.actor }}
-        #     SANDBOX_VOLUMES: /tmp:/tmp
-        #     LLM_API_KEY: ${{ secrets.OPENHANDS_LLM_API_KEY }}
-        #     LLM_MODEL: ${{ secrets.OPENHANDS_LLM_MODEL }}
-        #     LOG_ALL_EVENTS: true
+          env:
+            SANDBOX_RUNTIME_CONTAINER_IMAGE: docker.all-hands.dev/all-hands-ai/runtime:0.39-nikolaik
+            SANDBOX_USER_ID: ${{ github.actor }}
+            SANDBOX_VOLUMES: /tmp:/tmp
+            LLM_API_KEY: ${{ secrets.OPENHANDS_LLM_API_KEY }}
+            LLM_MODEL: ${{ secrets.OPENHANDS_LLM_MODEL }}
+            LOG_ALL_EVENTS: true
 
           run: |
             echo "Run Headless Mode"
