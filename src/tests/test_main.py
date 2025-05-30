@@ -23,3 +23,22 @@ def test_read_items():
     assert response.status_code == 200
     assert "テストアイテム1" in response.json()["items"]
     assert "テストアイテム2" in response.json()["items"]
+
+def test_delete_item():
+    # First create an item
+    client.post("/api/items/", json={"name": "テストアイテム"})
+
+    # Delete the item
+    response = client.request("DELETE", "/api/items/", json={"name": "テストアイテム"})
+    assert response.status_code == 200
+    assert response.json() == {"message": "Item deleted successfully", "deleted": True}
+
+    # Verify the item is deleted
+    response = client.get("/api/items/")
+    assert "テストアイテム" not in response.json()["items"]
+
+def test_delete_nonexistent_item():
+    # Try to delete an item that doesn't exist
+    response = client.request("DELETE", "/api/items/", json={"name": "存在しないアイテム"})
+    assert response.status_code == 200
+    assert response.json() == {"message": "Item not found", "deleted": False}

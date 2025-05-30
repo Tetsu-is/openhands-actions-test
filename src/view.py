@@ -17,3 +17,12 @@ class ItemReadRequest(BaseModel):
 class ItemReadResponse(BaseModel):
     """Response model for reading items"""
     items: List[str]
+
+class ItemDeleteRequest(BaseModel):
+    """Request model for deleting an item"""
+    name: str
+
+class ItemDeleteResponse(BaseModel):
+    """Response model for item deletion"""
+    message: str
+    deleted: bool
