@@ -3,7 +3,7 @@ triggers:
 - fix_document
 ---
 
-The user wants to necessary documentation for this pull request.
+The user wants necessary documentation for this pull request.
 
 You should add documentation when these situations
 - There are changes of directory structure
