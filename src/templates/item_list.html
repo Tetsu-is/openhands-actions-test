@@ -8,7 +8,12 @@
 {% if items %}
     <ul class="item-list">
         {% for item in items %}
-            <li>{{ item }}</li>
+            <li>
+                <div class="item-container">
+                    <span class="item-name">{{ item }}</span>
+                    <button class="delete-btn" onclick="deleteItem('{{ item }}')">削除</button>
+                </div>
+            </li>
         {% endfor %}
     </ul>
 {% else %}
@@ -18,4 +23,23 @@
 <div style="margin-top: 20px;">
     <a href="/items/create" class="btn">新しいアイテムを作成</a>
 </div>
+
+<script>
+    function deleteItem(itemName) {
+        if (confirm('「' + itemName + '」を削除してもよろしいですか？')) {
+            fetch('/items/?items=' + encodeURIComponent(itemName), {
+                method: 'DELETE',
+            }).then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('削除に失敗しました。');
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                alert('削除に失敗しました。');
+            });
+        }
+    }
+</script>
 {% endblock %}
