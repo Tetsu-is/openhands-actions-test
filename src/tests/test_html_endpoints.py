@@ -21,7 +21,7 @@ def test_item_create_form():
     assert response.status_code == 200
     assert "text/html" in response.headers["content-type"]
     assert "新しいアイテムを作成" in response.text
-    assert '<form action="/items/" method="post">' in response.text
+    assert '<form action="/items/" method="post" id="itemForm">' in response.text
 
 def test_item_create_submit():
     """Test that submitting the item creation form works correctly"""

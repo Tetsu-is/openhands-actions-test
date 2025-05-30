@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Request, Form, Depends
+from fastapi import APIRouter, Request, Form, Depends, HTTPException, Body
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
-from .model import Item
+from pydantic import ValidationError as PydanticValidationError
+from .model import Item, ValidationError as ModelValidationError
 from .view import (
     ItemCreateRequest, ItemCreateResponse,
     ItemReadResponse, ItemDeleteRequest, ItemDeleteResponse
@@ -13,23 +14,32 @@ templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
 router = APIRouter()
 
-# API エンドポイント
 @router.post("/api/items/", response_model=ItemCreateResponse)
 async def create_item_api(item_request: ItemCreateRequest):
     """
     Create a new item via API
 
     Args:
-        item_request: The request containing the item name
+        item_request: The request containing the item name to create
 
     Returns:
         ItemCreateResponse: A response indicating the item was created
-    """
-    # Use the model to create the item
-    Item.create(item_request.name)
 
-    # Return a response using the view model
-    return ItemCreateResponse(message="Item added", item=item_request.name)
+    Raises:
+        HTTPException: If validation fails
+    """
+    try:
+        # Use the model to create the item
+        Item.create(item_request.name)
+
+        # Return a response using the view model
+        return ItemCreateResponse(message="Item added", item=item_request.name)
+    except ModelValidationError as e:
+        # Handle model validation errors
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
 
 @router.get("/api/items/", response_model=ItemReadResponse)
 async def read_items_api():
@@ -74,11 +84,31 @@ async def create_item_submit(request: Request, name: str = Form(...)):
     """
     Process the item creation form submission
     """
-    # Use the model to create the item
-    Item.create(name)
+    # Validate name length directly
+    if len(name) < 1 or len(name) > 15:
+        error_message = "アイテム名は1文字以上15文字以下で入力してください"
+        return templates.TemplateResponse(
+            request,
+            "item_create.html",
+            {"message": error_message, "error": True}
+        )
 
-    # Redirect to the items list page
-    return RedirectResponse(url="/items", status_code=303)
+    try:
+        # Use the model to create the item
+        Item.create(name)
+
+        # Redirect to the items list page
+        return RedirectResponse(url="/items", status_code=303)
+    except ModelValidationError as e:
+        # Handle model validation errors
+        error_message = str(e)
+
+        # Return to the form with error message
+        return templates.TemplateResponse(
+            request,
+            "item_create.html",
+            {"message": error_message, "error": True}
+        )
 
 @router.delete("/items/", response_class=HTMLResponse)
 async def delete_item_html(request: Request, items: str):

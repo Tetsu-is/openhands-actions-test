@@ -5,17 +5,34 @@
 {% block content %}
 <h1>新しいアイテムを作成</h1>
 
-<form action="/items/" method="post">
+<form action="/items/" method="post" id="itemForm">
     <div class="form-group">
         <label for="name">アイテム名:</label>
-        <input type="text" id="name" name="name" required>
+        <input type="text" id="name" name="name" required minlength="1" maxlength="15" pattern=".{1,15}">
+        <div class="help-text">1文字以上15文字以下で入力してください</div>
     </div>
     <button type="submit" class="btn">作成</button>
 </form>
 
 {% if message %}
-<div style="margin-top: 20px; padding: 10px; background-color: #d4edda; border-radius: 4px;">
+<div style="margin-top: 20px; padding: 10px; {% if error %}background-color: #f8d7da{% else %}background-color: #d4edda{% endif %}; border-radius: 4px;">
     {{ message }}
 </div>
 {% endif %}
+
+<script>
+document.getElementById('itemForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nameInput = document.getElementById('name');
+    const name = nameInput.value;
+
+    // Validate name length and empty strings
+    if (name.trim() === '' || name.length < 1 || name.length > 15) {
+        alert('アイテム名は1文字以上15文字以下で入力してください');
+        return;
+    }
+
+    e.target.submit();
+});
+</script>
 {% endblock %}
