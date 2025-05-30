@@ -7,6 +7,8 @@ class Item:
     _item_list = []
 
     def __init__(self, name: str):
+        # Validate the name before initializing
+        self.validate_name(name)
         self.name = name
 
     @staticmethod
@@ -42,6 +44,10 @@ class Item:
         """
         # Validate the name before creating
         cls.validate_name(name)
+
+        # Double-check length validation
+        if len(name) < 1 or len(name) > 15:
+            raise ValidationError("アイテム名は1文字以上15文字以下で入力してください")
 
         cls._item_list.append(name)
         return True

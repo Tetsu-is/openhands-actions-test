@@ -31,6 +31,12 @@ document.getElementById('itemForm').addEventListener('submit', async (e) => {
         return;
     }
 
+    // Prevent form submission if validation fails
+    if (name.trim() === '' || name.length > 15) {
+        alert('アイテム名は1文字以上15文字以下で入力してください');
+        return;
+    }
+
     e.target.submit();
 });
 </script>

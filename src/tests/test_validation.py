@@ -34,12 +34,12 @@ def test_api_validation():
     # Test empty item name
     response = client.post("/api/items/", json={"name": ""})
     assert response.status_code == 422  # Pydantic validation returns 422
-    assert "String should have at least 1 character" in response.text
+    assert "アイテム名は1文字以上15文字以下で入力してください" in response.text
 
     # Test too long item name
     response = client.post("/api/items/", json={"name": "This is a very long item name that exceeds the limit"})
     assert response.status_code == 422  # Pydantic validation returns 422
-    assert "String should have at most 15 characters" in response.text
+    assert "アイテム名は1文字以上15文字以下で入力してください" in response.text
 
 def test_form_validation():
     """Test the validation in the form submission"""

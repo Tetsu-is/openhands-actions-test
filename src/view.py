@@ -1,9 +1,16 @@
-from pydantic import BaseModel, Field, constr
+from pydantic import BaseModel, Field, field_validator
 from typing import List
 
 class ItemCreateRequest(BaseModel):
     """Request model for creating an item"""
-    name: constr(min_length=1, max_length=15) = Field(..., description="アイテム名（1文字以上15文字以下）")
+    name: str = Field(..., description="アイテム名（1文字以上15文字以下）")
+
+    @field_validator('name')
+    @classmethod
+    def validate_name_length(cls, v):
+        if len(v) < 1 or len(v) > 15:
+            raise ValueError("アイテム名は1文字以上15文字以下で入力してください")
+        return v
 
 class ItemCreateResponse(BaseModel):
     """Response model for item creation"""
