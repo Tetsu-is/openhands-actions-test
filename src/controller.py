@@ -26,7 +26,7 @@ async def create_item_api(item_request: ItemCreateRequest):
     Item.create(item_request.name)
 
     # Return a response using the view model
-    return ItemCreateResponse(message="Item added!", item=item_request.name)
+    return ItemCreateResponse(message="Item added", item=item_request.name)
 
 @router.get("/api/items/", response_model=ItemReadResponse)
 async def read_items_api():
