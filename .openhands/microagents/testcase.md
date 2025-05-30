@@ -3,6 +3,8 @@ triggers:
 - testcase
 ---
 
+The functionality seems to be okay. We don't need additional implementation. We should care about test code.
+
 The user wants to check if he provide sufficient testcases to ensure the functionality he implemented.
 Your duty is check if there are enough testcases.
 
