@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}アイテム一覧{% endblock %}
+
+{% block content %}
+<h1>アイテム一覧</h1>
+
+{% if items %}
+    <ul class="item-list">
+        {% for item in items %}
+            <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>アイテムがありません。</p>
+{% endif %}
+
+<div style="margin-top: 20px;">
+    <a href="/items/create" class="btn">新しいアイテムを作成</a>
+</div>
+{% endblock %}
