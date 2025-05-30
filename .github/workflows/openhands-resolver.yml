@@ -52,16 +52,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v3
 
-      - name: "Build base container image"
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: Dockerfile.sandbox
-          tags: sandbox:latest
-          load: true
+      # - name: "Build base container image"
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: .
+      #     file: Dockerfile.sandbox
+      #     tags: sandbox:latest
+      #     load: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -225,8 +225,8 @@ jobs:
             --issue-number ${{ env.ISSUE_NUMBER }} \
             --token ${{ env.GITHUB_TOKEN }} \
             --llm-model ${{ env.LLM_MODEL }} \
-            --llm-api-key ${{ env.LLM_API_KEY }} \
-            --base-container-image sandbox:latest
+            --llm-api-key ${{ env.LLM_API_KEY }}
+            # --base-container-image sandbox:latest
       - name: Check resolution result
         id: check_result
         run: |
