@@ -1,19 +1,3 @@
-from fastapi import APIRouter, Request, Form, Depends, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
-from pathlib import Path
-from pydantic import ValidationError as PydanticValidationError
-from .model import Item, ValidationError as ModelValidationError
-from .view import (
-    ItemCreateRequest, ItemCreateResponse,
-    ItemReadResponse, ItemDeleteRequest, ItemDeleteResponse
-)
-
-# テンプレートディレクトリの設定
-templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
-
-router = APIRouter()
-
 from fastapi import APIRouter, Request, Form, Depends, HTTPException, Body
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -31,12 +15,12 @@ templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 router = APIRouter()
 
 @router.post("/api/items/", response_model=ItemCreateResponse)
-async def create_item_api(name: str = Body(..., embed=True)):
+async def create_item_api(item_request: ItemCreateRequest):
     """
     Create a new item via API
 
     Args:
-        name: The name of the item to create
+        item_request: The request containing the item name to create
 
     Returns:
         ItemCreateResponse: A response indicating the item was created
@@ -44,19 +28,12 @@ async def create_item_api(name: str = Body(..., embed=True)):
     Raises:
         HTTPException: If validation fails
     """
-    # Validate name length directly
-    if len(name) < 1 or len(name) > 15:
-        raise HTTPException(
-            status_code=400,
-            detail="アイテム名は1文字以上15文字以下で入力してください"
-        )
-
     try:
         # Use the model to create the item
-        Item.create(name)
+        Item.create(item_request.name)
 
         # Return a response using the view model
-        return ItemCreateResponse(message="Item added", item=name)
+        return ItemCreateResponse(message="Item added", item=item_request.name)
     except ModelValidationError as e:
         # Handle model validation errors
         raise HTTPException(
